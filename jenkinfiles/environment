@@ -55,6 +55,7 @@ pipeline {
                 withEnv(["USER_NAME=Panda"]) {
                     echo "USER_NAME = ${env.USER_NAME}"
                 }
+                echo "USER_NAME = ${env.USER_NAME}" // will print value "vignesh" from pipeline environment block
             }
         }
     }
