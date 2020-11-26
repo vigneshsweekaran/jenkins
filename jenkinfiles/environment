@@ -45,9 +45,16 @@ pipeline {
         stage ("Overriding in script block") {
             steps {
                 script {
-                    env.USER_NAME = "vijay"
+                    env.USER_NAME = "vijay"  // will not have any effect
                 }
                 echo "USER_NAME = ${env.USER_NAME}"
+            }
+        }
+        stage ("Overriding with withEnv block") {
+            steps {
+                withEnv(["USER_NAME=Panda"]) {
+                    echo "USER_NAME = ${env.USER_NAME}"
+                }
             }
         }
     }
