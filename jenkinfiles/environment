@@ -1,5 +1,9 @@
 pipeline {
   agent any
+  environment {
+      USER_NAME = "vignesh"
+      USER_ID = 23 // All the environment variable are casted to string
+  }
   stages {
       stage ("Listing all environment variables") {
           steps {
@@ -12,6 +16,9 @@ pipeline {
               echo "BUILD_NUMBER = ${env.BUILD_NUMBER}"
               // If you are sh block you access variable directly like this $BUILD_NUMBER
               sh 'echo BUILD_NUMBER = $BUILD_NUMBER'
+
+              echo "Current user is ${env.USER_NAME}"
+              echo "Current user is ${env.USER_ID} (type: ${env.USER_ID.class})"
           }
       }
   }
