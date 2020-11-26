@@ -1,0 +1,36 @@
+pipeline {
+    agent {
+        kubernetes {
+            label "k8s-random"
+            inheritFrom 'k8s-build'
+        }
+    }
+    
+    options {
+        disableConcurrentBuilds()
+        timestamps()
+    }
+    stages { 
+        stage("Extract Artifacts") {
+            steps {
+                container('tools') {
+                    script {
+                        def server = Artifactory.server env.ARTIFACTORY_FQDN
+                        server.credentialsId = 'artifactory-credential'
+                        
+                        sh "echo \"Hello\" > hello.txt"
+                        def uploadspec = """{
+                            "files": [
+                             {
+                                 "pattern": "*.txt",
+                                 "target": "sandbox-generic-candidates/vignesh/"
+                             }
+                            ]
+                        }"""
+                        server.upload(uploadspec)
+                    }
+                }    
+            } 
+         }
+    }
+}

@@ -1,0 +1,36 @@
+pipeline {
+    agent {
+        kubernetes {
+            label "k8s-random"
+            inheritFrom 'k8s-build'
+        }
+    }
+    
+    options {
+        disableConcurrentBuilds()
+        timestamps()
+    }
+    stages { 
+        stage("Extract Artifacts") {
+            steps {
+                container('tools') {
+                    script {
+                        def server = Artifactory.server env.ARTIFACTORY_FQDN
+                        server.credentialsId = 'artifactory-credential'
+                        
+                        def downloadSpec = """{
+                          "files": [
+                           {
+                               "pattern": "sandbox-generic-candidates/ace/test.tgz",
+                               "target": "artifacts/"
+                             }
+                          ]
+                         }"""
+                         server.download(downloadSpec)
+                         sh "cd artifacts && ls -l"
+                    }
+                }    
+            } 
+         }
+    }
+}

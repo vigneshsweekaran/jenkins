@@ -1,0 +1,52 @@
+pipeline {
+    agent {
+        kubernetes {
+            label "k8s-random"
+            inheritFrom 'k8s-build'
+        }
+    }
+    
+    options {
+        disableConcurrentBuilds()
+        timestamps()
+    }
+    stages { 
+        stage("Extract Artifacts") {
+            steps {
+                container('tools') {
+                    script {
+                        def server = Artifactory.server env.ARTIFACTORY_FQDN
+                        server.credentialsId = 'artifactory-credential'
+                        
+                        def downloadSpec = """{
+                         "files": [
+                          {
+                              "pattern": "sandbox-generic-candidates/ace/test.tgz",
+                              "target": "artifacts/"
+                            }
+                         ]
+                        }"""
+                        
+                        sh "echo \"Hello\" > hello.txt"
+                        def uploadSpec = """{
+                            "files": [
+                             {
+                                 "pattern": "*.txt",
+                                 "target": "sandbox-generic-candidates/vignesh/"
+                             }
+                            ]
+                        }"""
+                        
+                        def buildInfo1 = server.download downloadSpec
+                        def buildInfo2 = server.upload uploadSpec
+                        buildInfo1.append buildInfo2
+                        // Captures all environment varibales in build info
+                        buildInfo1.env.capture = true
+                        buildInfo1.env.collect()
+                        server.publishBuildInfo buildInfo1
+                    }
+                }    
+            } 
+         }
+    }
+}

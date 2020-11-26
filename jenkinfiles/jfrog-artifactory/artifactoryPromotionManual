@@ -1,0 +1,57 @@
+pipeline {
+    agent {
+        kubernetes {
+            label "k8s-random"
+            inheritFrom 'k8s-build'
+        }
+    }
+    
+    options {
+        disableConcurrentBuilds()
+        timestamps()
+    }
+    stages { 
+        stage("Extract Artifacts") {
+            steps {
+                container('tools') {
+                    script {
+                        def server = Artifactory.server env.ARTIFACTORY_FQDN
+                        server.credentialsId = 'artifactory-credential'
+                        
+                        sh "echo \"Hello\" > hello.txt"
+                        def uploadSpec = """{
+                            "files": [
+                             {
+                                 "pattern": "*.txt",
+                                 "target": "sandbox-generic-candidates/vignesh/"
+                             }
+                            ]
+                        }"""
+                        def buildInfo1 = server.upload uploadSpec
+                        server.publishBuildInfo buildInfo1
+                        
+                        def promotionConfig = [
+                            // Mandatory parameters
+                            'buildName'          : buildInfo1.name,
+                            'buildNumber'        : buildInfo1.number,
+                            'targetRepo'         : 'sandbox-generic-releases',
+                         
+                            // Optional parameters
+                            // 'comment'            : 'this is the promotion comment',
+                            // 'sourceRepo'         : 'libs-staging-local',
+                            // 'status'             : 'Released',
+                            // 'includeDependencies': true,
+                            // 'copy'               : true,
+                            // 'failFast' is true by default.
+                            // Set it to false, if you don't want the promotion to abort upon receiving the first error.
+                            // 'failFast'           : true
+                        ]
+                         
+                        // Promote build
+                         Artifactory.addInteractivePromotion server: server, promotionConfig: promotionConfig, displayName: "Promote to release"
+                    }
+                }    
+            } 
+         }
+    }
+}
