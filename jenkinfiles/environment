@@ -39,7 +39,7 @@ pipeline {
         }
         stage ("Accessing environment variables") {
             steps {
-                sh 'USER_NAME = $USER_NAME'
+                sh 'echo USER_NAME = $USER_NAME'
             }
         }
     }
