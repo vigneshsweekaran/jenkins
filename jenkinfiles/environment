@@ -21,8 +21,8 @@ pipeline {
                 // If you are sh block you access variable directly like this $BUILD_NUMBER
                 sh 'echo BUILD_NUMBER = $BUILD_NUMBER'
 
-                echo "Current user is ${env.USER_NAME}"
-                echo "Current user is ${env.USER_ID} (type: ${env.USER_ID.class})"
+                echo "Current user NAME is ${env.USER_NAME}"
+                echo "Current user ID is ${env.USER_ID} (type: ${env.USER_ID.class})"
 
                 echo "USER_PATH = ${env.USER_PATH}"
 
@@ -31,9 +31,9 @@ pipeline {
                 }
                 echo "Current user group = ${env.USER_GROUP}"
 
-                withEnv(["USER_PSD=secret", "USER_ID_ADMIN=false"]) {
+                withEnv(["USER_PSD=secret", "USER_IS_ADMIN=false"]) {
                     echo "USER_PSD = ${USER_PSD}"
-                    sh 'USER_ID_ADMIN = $USER_ID_ADMIN'
+                    sh 'echo USER_ID_ADMIN = $USER_IS_ADMIN'
                 }
             }         
         }
