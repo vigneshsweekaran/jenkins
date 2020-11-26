@@ -42,5 +42,13 @@ pipeline {
                 sh 'echo USER_NAME = $USER_NAME'
             }
         }
+        stage ("Overriding in script block") {
+            steps {
+                script {
+                    env.USER_NAME = "vijay"
+                }
+                echo "USER_NAME = ${env.USER_NAME}"
+            }
+        }
     }
 }
