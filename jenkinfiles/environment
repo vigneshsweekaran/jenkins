@@ -1,44 +1,46 @@
 pipeline {
-  agent any
-  environment {
-      USER_NAME = "vignesh"
-      USER_ID = 23 // All the environment variable are casted to string
-  }
-  stages {
-      stage ("Listing all environment variables") {
-          steps {
-              sh "printenv | sort"
-          }
-      }
-      stage ("Using environment variable") {
-          environment {
-              USER_PATH = "/home/vignesh"
-              USER_NAME = "venkatesh"
-          }
-          steps {
-              // ${env.BUILD_NUMBER} or ${BUILD_NUMBER} are same
-              echo "BUILD_NUMBER = ${env.BUILD_NUMBER}"
-              // If you are sh block you access variable directly like this $BUILD_NUMBER
-              sh 'echo BUILD_NUMBER = $BUILD_NUMBER'
+    agent any
+    environment {
+        USER_NAME = "vignesh"
+        USER_ID = 23 // All the environment variable are casted to string
+    }
+    stages {
+        stage ("Listing all environment variables") {
+            steps {
+                sh "printenv | sort"
+            }
+        }
+        stage ("Using environment variable") {
+            environment {
+                USER_PATH = "/home/vignesh"
+                USER_NAME = "venkatesh"
+            }
+            steps {
+                // ${env.BUILD_NUMBER} or ${BUILD_NUMBER} are same
+                echo "BUILD_NUMBER = ${env.BUILD_NUMBER}"
+                // If you are sh block you access variable directly like this $BUILD_NUMBER
+                sh 'echo BUILD_NUMBER = $BUILD_NUMBER'
 
-              echo "Current user is ${env.USER_NAME}"
-              echo "Current user is ${env.USER_ID} (type: ${env.USER_ID.class})"
+                echo "Current user is ${env.USER_NAME}"
+                echo "Current user is ${env.USER_ID} (type: ${env.USER_ID.class})"
 
-              echo "USER_PATH = ${env.USER_PATH}"
+                echo "USER_PATH = ${env.USER_PATH}"
 
-              script {
-                  env.USER_GROUP = "users"
-              }
-              echo "Current user group = ${env.USER_GROUP}"
+                script {
+                    env.USER_GROUP = "users"
+                }
+                echo "Current user group = ${env.USER_GROUP}"
 
-              withEnv(["USER_PSD=secret", "USER_ID_ADMIN=false"]) {
-                  echo "USER_PSD = ${USER_PSD}"
-                  sh 'USER_ID_ADMIN = $USER_ID_ADMIN'
-              }
-          }         
-      }
-      stage ("Accessing environment variables") {
-          sh 'USER_NAME = $USER_NAME'
-      }
-  }
+                withEnv(["USER_PSD=secret", "USER_ID_ADMIN=false"]) {
+                    echo "USER_PSD = ${USER_PSD}"
+                    sh 'USER_ID_ADMIN = $USER_ID_ADMIN'
+                }
+            }         
+        }
+        stage ("Accessing environment variables") {
+            steps {
+                sh 'USER_NAME = $USER_NAME'
+            }
+        }
+    }
 }
