@@ -3,6 +3,7 @@ pipeline {
     environment {
         USER_NAME = "vignesh"
         USER_ID = 23 // All the environment variable are casted to string
+        TRIGGER_NEXT = true
     }
     stages {
         stage ("Listing all environment variables") {
@@ -56,6 +57,59 @@ pipeline {
                     echo "USER_NAME = ${env.USER_NAME}"
                 }
                 echo "USER_NAME = ${env.USER_NAME}" // will print value "vignesh" from pipeline environment block
+            }
+        }
+        stage ("Using env vaibale as boolean (not working)") {
+            when {
+                expression {
+                    // Here the env.TRIGGER_NEXT is actually "true" (string) so the condition is false
+                    env.TRIGGER_NEXT == true
+                }
+            }
+            steps {
+                echo "OK"
+            }
+        }
+        stage ("Using env vaibale as boolean (working) ") {
+            when {
+                expression {
+                    // Here the env.TRIGGER_NEXT is actually "true" (string) so the condition is false
+                    env.TRIGGER_NEXT == true
+                }
+            }
+            steps {
+                echo "OK"
+            }
+        }
+        stage ("Converting string to boolean") {
+            when {
+                expression {
+                    env.TRIGGER_NEXT.toBoolean() == true
+                }
+            }
+            steps {
+                echo "OK"
+            }
+        }
+        stage ("Using environment as condition") {
+            environment {
+                TRIGGER_NEXT = "true" // true as string in double quotes
+            }
+            when {
+                expression {
+                    environment name: "TRIGGER_NEXT", value: "true"
+                }
+            }
+            steps {
+                echo "OK"
+            }
+        }
+        stage ("Storing sh output to environment variable") {
+            environment {
+                FILES_COUNT = sh "ls -al /tmp | wc -l"
+            }
+            steps {
+                echo "The tmp folder has ${FILES_COUNT} files"
             }
         }
     }
