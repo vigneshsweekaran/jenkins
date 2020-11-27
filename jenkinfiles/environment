@@ -104,9 +104,18 @@ pipeline {
                 echo "OK"
             }
         }
-        stage ("Storing sh output to environment variable") {
+        stage ("Storing sh step output to environment variable") {
             environment {
-                FILES_COUNT = sh "ls -al /tmp | wc -l"
+                // sh step by default will not return any value
+                FILES_COUNT = sh "ls -al /tmp | wc -l" 
+            }
+            steps {
+                echo "The tmp folder has ${FILES_COUNT} files"
+            }
+        }
+        stage ("Storing sh step with parameters output to environment variable") {
+            environment {
+                FILES_COUNT = sh (script: "ls -al /tmp | wc -l", returnStdout: true) 
             }
             steps {
                 echo "The tmp folder has ${FILES_COUNT} files"
