@@ -115,7 +115,8 @@ pipeline {
         }
         stage ("Storing sh step with parameters output to environment variable") {
             environment {
-                FILES_COUNT = sh (script: "ls -al /tmp | wc -l", returnStdout: true) 
+                // we have to trim the output otherwise we will have some whitespace
+                FILES_COUNT = sh (script: "ls -al /tmp | wc -l", returnStdout: true).trim()
             }
             steps {
                 echo "The tmp folder has ${FILES_COUNT} files"
