@@ -1,0 +1,12 @@
+pipeline {
+  agent {
+    kubernetes {
+      yamlFile 'KubernetesPod.yaml'
+    }
+  }
+  stages {
+      stage ("hello") {
+          
+      }
+  }
+}
