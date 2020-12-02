@@ -1,0 +1,12 @@
+withCredentials([usernamePassword(credentialsId: "${CREDENTIAL_ID}", passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+	sh("git checkout ${params.branchName}")
+	sh("git config --global user.email \"${GIT_EMAIL_ID}\"")
+	sh("git config --global user.name \"${GIT_USER_ID}\"")
+	sh("git status; git add hello.txt; git commit -m \"updated hello.txt\" ")
+	script {
+		GIT_PASSWORD = sh(script: "echo ${GIT_PASSWORD} |sed 's/@/%40/g'", returnStdout: true).trim()
+	}
+	wrap([$class: 'MaskPasswordsBuildWrapper', varPasswordPairs: [[password: "${GIT_PASSWORD}", var: 'GIT_PASSWORD']]]) {
+		sh("git push https://${GIT_USERNAME}:${GIT_PASSWORD}@${REPO_URL} ${params.branchName}")
+	}
+}
