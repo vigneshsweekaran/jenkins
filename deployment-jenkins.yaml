@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins
+  labels:
+    name: jenkins
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: jenkins
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      name: jenkins
+      labels:
+        name: jenkins
+    spec:
+      securityContext:
+        fsGroup: 1000 
+        runAsUser: 0
+      containers:
+        - name:  jenkins
+          image: jenkins/jenkins:2.263.3
+          env:
+            - name: JAVA_OPTS
+              value: -Dpermissive-script-security.enabled=true
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+          - name: jenkins-data
+            mountPath: "/var/jenkins_home"
+#            subPath: "plugins"
+#          - name: jenkins-data
+#            mountPath: "/var/jenkins_home/users"
+#           subPath: "users"
+#          - name: jenkins-data
+#           mountPath: "/var/jenkins_home/jobs"
+#            subPath: "jobs"
+#          - name: jenkins-data
+#            mountPath: "/var/jenkins_home/secrets"
+#            subPath: "secrets"
+          resources:
+            limits:
+              memory: 1536Mi
+            requests:
+              memory: 1024Mi
+      volumes:
+      - name: jenkins-data
+        persistentVolumeClaim:
+          claimName: jenkins
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins
+  labels:
+    name: jenkins
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    name: jenkins
+  type: ClusterIP
