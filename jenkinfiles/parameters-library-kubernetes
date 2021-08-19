@@ -1,0 +1,23 @@
+@Library('jenkins-library') _
+pipeline {
+  agent {
+    kubernetes {
+      defaultContainer 'shell'
+      yaml libraryResource('pods/base.yaml')
+    }
+  }
+    parameters {
+        booleanParam(name: 'maven_build', defaultValue: true, description: 'Enable/Disable maven Build')
+        booleanParam(name: 'artifactory_build_publish', defaultValue: false, description: 'Enable/Disable Artifactory maven build and publish ')
+        booleanParam(name: 'sonarqube', defaultValue: false, description: 'Enable/Disable Sonarqube Analysis')
+        booleanParam(name: 'docker_build_push', defaultValue: true, description: 'Enable/Disable Docker build and push')
+        booleanParam(name: 'deploy', defaultValue: false, description: 'Enable/Disable Deploy')
+    }
+  stages {
+      stage ("hello") {
+          steps {
+              sh 'hostname'
+          }
+      }
+  }
+}
