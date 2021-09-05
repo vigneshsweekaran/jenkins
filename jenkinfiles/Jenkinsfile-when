@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        BRANCH_NAME = sh(script:" echo $GIT_BRANCH | sed \'s#origin/##\'", returnStdout: true).trim()  // .tim() in the end is very important
+        BRANCH_NAME = sh(script:" echo $GIT_BRANCH | sed \'s#origin/##\'", returnStdout: true).trim()  // .trim() in the end is very important
     }
     stages {
         stage ('Print branch name'){
