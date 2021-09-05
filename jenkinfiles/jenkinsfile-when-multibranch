@@ -1,0 +1,42 @@
+pipeline {
+    agent any
+    environment {
+        BRANCH_NAME1 = sh(script:" echo $GIT_BRANCH | sed \'s#origin/##\'", returnStdout: true).trim()  // .tim() in the end is very important.
+    }
+    stages {
+        stage ('Print branch name'){
+            steps {
+                sh "printenv"
+                echo "Branch name : ${BRANCH_NAME1}"
+            }
+        }
+        stage ('master Branch') {
+            // when condition for environment variables
+            when {
+                environment name: "BRANCH_NAME1", value: "master"
+            }
+            // Approach 2 -  when condition for environment variables
+            //when {
+            //    expression {
+            //       return BRANCH_NAME1 == 'master'
+            //    }
+            //}
+            steps {
+                echo "Branch name : ${BRANCH_NAME1}"
+            }
+        }
+        stage ('Develop branch') {
+            when {
+                environment name: "BRANCH_NAME1", value: "develop"
+            }
+            steps {
+                echo "Branch name : ${BRANCH_NAME1}"
+            }
+        }
+    }
+    post { 
+        always { 
+            cleanWs()
+        }
+    }
+}
