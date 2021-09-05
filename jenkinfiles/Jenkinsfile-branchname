@@ -1,7 +1,7 @@
 pipeline {
   agent any
   environment {
-      // Returns /origin/master
+      // Returns remotes/origin/master
       BRANCH_NAME1 = sh(script:'git name-rev --name-only HEAD', returnStdout: true)
       // Returns master
       BRANCH_NAME = sh(script:' echo $GIT_BRANCH | sed \'s#origin/##\'', returnStdout: true)
@@ -9,9 +9,9 @@ pipeline {
   stages {
     stage ('Build') {
       steps {
-        echo "${GIT_BRANCH}"
-        echo "${BRANCH_NAME1}"
-        echo "${BRANCH_NAME}"
+        echo "${GIT_BRANCH}"                  // Returns /origin/master
+        echo "${BRANCH_NAME1}"                // Returns remotes/origin/master
+        echo "${BRANCH_NAME}"                 // master
         sh 'printenv'
         sh 'echo Hello Build stage'
       }
