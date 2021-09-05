@@ -1,0 +1,26 @@
+pipeline {
+  agent any
+  environment {
+      BRANCH_NAME = sh(script:'git name-rev --name-only HEAD', returnStdout: true)
+  }
+  stages {
+    stage ('Build') {
+      steps {
+        echo "${GIT_BRANCH}"
+        echo "${BRANCH_NAME}"
+        sh 'printenv'
+        sh 'echo Hello Build stage'
+      }
+    }
+    stage ('Test') {
+      steps {
+        sh 'echo hello Test stage'
+      }
+    }
+  }
+    post { 
+        always { 
+            cleanWs()
+        }
+    }
+}
