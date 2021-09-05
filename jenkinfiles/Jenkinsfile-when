@@ -1,26 +1,31 @@
 pipeline {
-  agent any
-  environment {
-      BRANCH_NAME = sh(script:' echo $GIT_BRANCH | sed \'s#origin/##\'', returnStdout: true)
-  }
-  stages {
-    stage ('master Branch') {
-      when {
-          expression { env.BRANCH_NAME == "master" }
-      }
-      steps {
-        echo "Branch name : ${BRANCH_NAME}"
-      }
+    agent any
+    environment {
+        BRANCH_NAME = sh(script:" echo $GIT_BRANCH | sed \'s#origin/##\'", returnStdout: true).trim()
     }
-    stage ('Develop branch') {
-      when {
-          expression { env.BRANCH_NAME == "develop" }
-      }
-      steps {
-        echo "Branch name : ${BRANCH_NAME}"
-      }
+    stages {
+        stage ('Print branch name'){
+            steps {
+                echo "Branch name : ${BRANCH_NAME}"
+            }
+        }
+        stage ('master Branch') {
+            when {
+                environment name: "BRANCH_NAME", value: "master"
+            }
+            steps {
+                echo "Branch name : ${BRANCH_NAME}"
+            }
+        }
+        stage ('Develop branch') {
+            when {
+                environment name: "BRANCH_NAME", value: "develop"
+            }
+            steps {
+                echo "Branch name : ${BRANCH_NAME}"
+            }
+        }
     }
-  }
     post { 
         always { 
             cleanWs()
