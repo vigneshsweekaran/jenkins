@@ -15,11 +15,11 @@ pipeline {
                 environment name: "BRANCH_NAME", value: "master"
             }
             // Approach 2 -  when condition for environment variables
-            when {
-                expression {
-                    return BRANCH_NAME == 'master'
-                }
-            }
+            //when {
+            //    expression {
+            //       return BRANCH_NAME == 'master'
+            //    }
+            //}
             steps {
                 echo "Branch name : ${BRANCH_NAME}"
             }
