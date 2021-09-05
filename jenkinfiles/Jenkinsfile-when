@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        BRANCH_NAME = sh(script:" echo $GIT_BRANCH | sed \'s#origin/##\'", returnStdout: true).trim()
+        BRANCH_NAME = sh(script:" echo $GIT_BRANCH | sed \'s#origin/##\'", returnStdout: true).trim()  // .tim() in the end is very important
     }
     stages {
         stage ('Print branch name'){
@@ -10,8 +10,15 @@ pipeline {
             }
         }
         stage ('master Branch') {
+            // when condition for environment variables
             when {
                 environment name: "BRANCH_NAME", value: "master"
+            }
+            // Approach 2 -  when condition for environment variables
+            when {
+                expression {
+                    return BRANCH_NAME == 'master'
+                }
             }
             steps {
                 echo "Branch name : ${BRANCH_NAME}"
