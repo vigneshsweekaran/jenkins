@@ -1,0 +1,16 @@
+pipeline {
+  agent any
+  stages {
+    stage ('Build') {
+      environment {
+      // API URL
+      URL = "https://reqres.in/api/users"
+      }
+      steps {
+        def response = httpRequest 'http://localhost:8080/jenkins/api/json?pretty=true'
+        println("Status: "+response.status)
+        println("Content: "+response.content)
+      }
+    }
+  }
+}
