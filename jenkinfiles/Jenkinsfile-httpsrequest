@@ -7,9 +7,11 @@ pipeline {
         API_URL = "https://reqres.in/api/users"
       }
       steps {
-        def response = httpRequest env.API_URL
-        println("Status: "+response.status)
-        println("Content: "+response.content)
+        script {
+          def response = httpRequest env.API_URL
+          println("Status: "+response.status)
+          println("Content: "+response.content)
+        }
       }
     }
   }
