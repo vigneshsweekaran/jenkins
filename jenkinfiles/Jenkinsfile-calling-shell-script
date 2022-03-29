@@ -4,7 +4,7 @@ pipeline {
     stage ('Build') {
       steps {
         sh ```
-          chmod +x run.sh
+          chmod +x test.sh
           ./run.sh
         ```
       }
