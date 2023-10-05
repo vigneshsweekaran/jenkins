@@ -1,5 +1,10 @@
 pipeline {
     agent any
+    options {
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timeout(time: 1, unit: 'HOURS')
+    }
     parameters {
         string(name: 'VM_NAME', defaultValue: 'test', description: 'Azure virtual machine name prefix')
         string(name: 'VM_USERNAME', defaultValue: 'azureuser', description: 'Azure virtual machine username')
