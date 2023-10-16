@@ -45,6 +45,15 @@ pipeline {
                               --version 2.1 \
                               --settings '{"fileUris":["https://raw.githubusercontent.com/vigneshsweekaran/shellscript/main/automation/04-install-tomcat9-ubuntu/main.sh"]}' \
                               --protected-settings '{"commandToExecute": "./main.sh"}'
+							nsg_name=$(az network nsg list --resource-group ${RG_NAME} --query '[].name' --output tsv)
+							az network nsg rule create \
+							  --resource-group ${RG_NAME} \
+							  --nsg-name ${nsg_name} \
+							  --name allow-8080 \
+							  --protocol tcp \
+							  --priority 200 \
+							  --destination-port-range 8080
+							  --access Allow
                         """
                     }
                 }
