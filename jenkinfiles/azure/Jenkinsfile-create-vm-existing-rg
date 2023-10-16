@@ -1,47 +1,56 @@
 pipeline {
-    agent any
-    options {
-        disableConcurrentBuilds()
-        buildDiscarder(logRotator(numToKeepStr: '10'))
-        timeout(time: 1, unit: 'HOURS')
-    }
-    parameters {
-        string(name: 'VM_NAME', defaultValue: 'test', description: 'Azure virtual machine name prefix')
-        string(name: 'VM_USERNAME', defaultValue: 'azureuser', description: 'Azure virtual machine username')
-        password(name: 'VM_PASSWORD', defaultValue: 'DEfaultpass#$#123', description: 'Azure virtual machine password')
-        choice(name: 'VM_IMAGE', choices: ['Ubuntu2204'], description: 'Azure virtual machine image name')
-        choice(name: 'VM_SIZE', choices: ['standard_d2s_v4', 'standard_d2s_v5'], description: 'Azure virtual machine size')
-        string(name: 'VM_COUNT', defaultValue: '1', description: 'Number of azure virtual machines to create')
-    }
-    environment {
-        VM_NAME = "dev-agent"
-    }
-    stages {
-        stage('Verify azure credential') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'azure-credential', usernameVariable: 'AZURE_USERNAME', passwordVariable: 'AZURE_PASSWORD')]) {
-                  sh 'az login -u ${AZURE_USERNAME} -p ${AZURE_PASSWORD}'
-                }
-                script {
-                    RG_NAME = sh(script: "az group list --query \"[0].name\"", returnStdout: true).trim()
-                    echo "Azure Resource group name is : ${RG_NAME}"
-                    def vmCount = Integer.parseInt("${params.VM_COUNT}")
-                    def password = params.VM_PASSWORD.trim()
-                    for(int index_no = 0;index_no<vmCount;index_no++) {
-                        sh """
-                            az vm create \
-                              --resource-group ${RG_NAME} \
-                              --name ${params.VM_NAME}-${index_no} \
-                              --image ${params.VM_IMAGE} \
-                              --authentication-type password \
-                              --size ${params.VM_SIZE} \
-                              --public-ip-sku Standard \
-                              --admin-username ${params.VM_USERNAME} \
-                              --admin-password ${password}
-                        """
-                    }
-                }
-            }
-        }
-    }
+	agent any
+	options {
+		disableConcurrentBuilds()
+		buildDiscarder(logRotator(numToKeepStr: '10'))
+		timeout(time: 1, unit: 'HOURS')
+	}
+	parameters {
+		string(name: 'VM_NAME', defaultValue: 'test', description: 'Azure virtual machine name prefix')
+		string(name: 'VM_USERNAME', defaultValue: 'azureuser', description: 'Azure virtual machine username')
+		password(name: 'VM_PASSWORD', defaultValue: 'DEfaultpass#$#123', description: 'Azure virtual machine password')
+		choice(name: 'VM_IMAGE', choices: ['Ubuntu2204'], description: 'Azure virtual machine image name')
+		choice(name: 'VM_SIZE', choices: ['standard_d2s_v4', 'standard_d2s_v5'], description: 'Azure virtual machine size')
+		string(name: 'VM_COUNT', defaultValue: '1', description: 'Number of azure virtual machines to create')
+	}
+	environment {
+		VM_NAME = "dev-agent"
+	}
+	stages {
+		stage('Verify azure credential') {
+			steps {
+				withCredentials([usernamePassword(credentialsId: 'azure-credential', usernameVariable: 'AZURE_USERNAME', passwordVariable: 'AZURE_PASSWORD')]) {
+				  sh 'az login -u ${AZURE_USERNAME} -p ${AZURE_PASSWORD}'
+				}
+				script {
+					RG_NAME = sh(script: "az group list --query \"[0].name\"", returnStdout: true).trim()
+					echo "Azure Resource group name is : ${RG_NAME}"
+					def vmCount = Integer.parseInt("${params.VM_COUNT}")
+					def password = params.VM_PASSWORD.trim()
+					for(int index_no = 0;index_no<vmCount;index_no++) {
+						sh """
+							az vm create \
+							  --resource-group ${RG_NAME} \
+							  --name ${params.VM_NAME}-${index_no} \
+							  --image ${params.VM_IMAGE} \
+							  --authentication-type password \
+							  --size ${params.VM_SIZE} \
+							  --public-ip-sku Standard \
+							  --admin-username ${params.VM_USERNAME} \
+							  --admin-password ${password}
+							nsg_name=$(az network nsg list --resource-group ${RG_NAME} --query '[].name' --output tsv)
+							az network nsg rule create \
+							  --resource-group ${RG_NAME} \
+							  --nsg-name ${nsg_name} \
+							  --name allow-8080 \
+							  --protocol tcp \
+							  --priority 200 \
+							  --destination-port-range 8080
+							  --access Allow
+						"""
+					}
+				}
+			}
+		}
+	}
 }
