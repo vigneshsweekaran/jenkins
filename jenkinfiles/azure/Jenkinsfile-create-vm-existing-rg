@@ -25,7 +25,8 @@ pipeline {
                 script {
                     RG_NAME = sh(script: "az group list --query \"[0].name\"", returnStdout: true).trim()
                     echo "Azure Resource group name is : ${RG_NAME}"
-                    vmCount = Integer.parseInt("${params.VM_COUNT}")
+                    def vmCount = Integer.parseInt("${params.VM_COUNT}")
+                    def password = params.VM_PASSWORD.trim()
                     for(int index_no = 0;index_no<vmCount;index_no++) {
                         sh """
                             az vm create \
@@ -36,7 +37,7 @@ pipeline {
                               --size ${params.VM_SIZE} \
                               --public-ip-sku Standard \
                               --admin-username ${params.VM_USERNAME} \
-                              --admin-password ${params.VM_PASSWORD}
+                              --admin-password ${password}
                         """
                     }
                 }
